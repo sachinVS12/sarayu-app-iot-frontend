@@ -227,4 +227,3 @@ const EditGraph = () => {
 };
 
 export default EditGraph;
-
