@@ -79,6 +79,28 @@ const EditGraph = () => {
     setThreshold(updatedThresholds);
   };
 
+  const handleClearAll = async () => {
+    try {
+      // Clear thresholds in the backend
+      await apiClient.post(`/mqtt/add?topic=${topic}`, {
+        thresholds: []
+      });
+      
+      // Reset local state
+      setThreshold([]);
+      setThresholdNumber("0");
+      
+      // Show success message
+      toast.success("Thresholds cleared successfully");
+      
+      // Force a re-render of the graph by reloading the page
+      window.location.reload();
+    } catch (error) {
+      console.error("Error clearing thresholds:", error);
+      toast.error("Failed to clear thresholds");
+    }
+  };
+
   const handleSaveChanges = async () => {
     if (thresholdNumber === "2") {
       const orangeValue = parseInt(thresholds[0]?.value, 10) || 0;
@@ -90,12 +112,21 @@ const EditGraph = () => {
     }
 
     try {
+      // If thresholdNumber is 0, clear all thresholds
+      const thresholdsToSave = thresholdNumber === "0" ? [] : thresholds;
+      
       await apiClient.post(`/mqtt/add?topic=${topic}`, {
-        thresholds: thresholds,
+        thresholds: thresholdsToSave,
       });
+      
+      // Show success message
+      toast.success(thresholdNumber === "0" ? "Thresholds cleared successfully" : "Thresholds saved successfully");
+      
+      // Reload to reflect changes
       window.location.reload();
     } catch (error) {
-      console.log(error.message);
+      console.error("Error saving thresholds:", error);
+      toast.error("Failed to save thresholds");
     }
   };
 
@@ -175,7 +206,7 @@ const EditGraph = () => {
               </div>
               <div className="threshold-buttons">
                 <button
-                  onClick={() => setThreshold([])}
+                  onClick={handleClearAll}
                   className="btn-clear"
                 >
                   Clear All
@@ -196,3 +227,4 @@ const EditGraph = () => {
 };
 
 export default EditGraph;
+
