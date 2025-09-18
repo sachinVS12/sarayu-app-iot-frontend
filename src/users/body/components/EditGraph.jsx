@@ -35,7 +35,7 @@ const EditGraph = () => {
     let updatedThresholds = Array.from(
       { length: Number(thresholdNumber) },
       (_, index) => {
-        if (thresholdNumber === "2") {
+        if (thresholdNumber === 2) {
           return index === 0
             ? { value: thresholds[index]?.value || "", color: "orange" }
             : { value: thresholds[index]?.value || "", color: "red" };
@@ -62,7 +62,7 @@ const EditGraph = () => {
   };
 
   const handleSelectNumberOfThreshold = (e) => {
-    setThresholdNumber(e.target.value);
+    setThresholdNumber(Number(e.target.value));
   };
 
   const handleThresholdChange = (index, key, value) => {
@@ -74,13 +74,18 @@ const EditGraph = () => {
         ...updatedThresholds[index],
         value: newValue,
       };
+    } else if (key === "color") {
+      updatedThresholds[index] = {
+        ...updatedThresholds[index],
+        color: value,
+      };
     }
 
     setThreshold(updatedThresholds);
   };
 
   const handleSaveChanges = async () => {
-    if (thresholdNumber === "2") {
+    if (thresholdNumber === 2) {
       const orangeValue = parseInt(thresholds[0]?.value, 10) || 0;
       const redValue = parseInt(thresholds[1]?.value, 10) || 0;
       if (redValue <= orangeValue) {
@@ -90,8 +95,9 @@ const EditGraph = () => {
     }
 
     try {
+      const payloadThresholds = Number(thresholdNumber) === 0 ? [] : thresholds;
       await apiClient.post(`/mqtt/add?topic=${topic}`, {
-        thresholds: thresholds,
+        thresholds: payloadThresholds,
       });
       window.location.reload();
     } catch (error) {
@@ -142,7 +148,7 @@ const EditGraph = () => {
                       }
                       className="threshold-input"
                     />
-                    {thresholdNumber === "2" ? (
+                    {thresholdNumber === 2 ? (
                       <div
                         className="threshold-color-display"
                         style={{
@@ -167,7 +173,7 @@ const EditGraph = () => {
                         }
                       >
                         <option value="orange">Yellow</option>
-                        <option value="2">Red</option>
+                        <option value="red">Red</option>
                       </select>
                     )}
                   </div>
@@ -196,3 +202,5 @@ const EditGraph = () => {
 };
 
 export default EditGraph;
+
+
